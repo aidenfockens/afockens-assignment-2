@@ -163,6 +163,16 @@ button {
     outline: none;
 }
 
+
+/* Disabled buttons: Change appearance to indicate they are not clickable */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;  /* Show a "not-allowed" cursor */
+    background-color: #ddd;  /* Change background to light gray */
+    color: #aaa;  /* Change text color to gray */
+}
+
+
 /* Button Hover and Focus Effects */
 button:hover {
     background-color: #529fd1;

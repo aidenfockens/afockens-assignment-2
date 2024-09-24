@@ -110,6 +110,8 @@ def step_kmeans():
     init_method = data['init_method']
     should_converge = data["should_converge"]
 
+
+
     if should_converge:
         centroids = initialize_centroids(X, num_clusters, init_method)
         max_iterations = 100  # A limit to prevent infinite loops
@@ -128,6 +130,7 @@ def step_kmeans():
             # Update centroids for next iteration
             centroids = new_centroids
     else:
+        
         # Initialize K-Means only on the first step
         if current_step == 0:
             centroids = initialize_centroids(X, num_clusters, init_method)
@@ -136,15 +139,19 @@ def step_kmeans():
             # Initialize KMeans with a maximum of 1 iteration to step through
 
         else:
+            old_centroids = copy.deepcopy(centroids)
             centroids = update_centroids(X, assignments, num_clusters)
             assignments = assign_clusters(X, centroids)
+            if has_converged(old_centroids,new_centroids):
+                current_step -=1
+                
 
         # Increment the step count
         current_step += 1
-
     # Update points with cluster assignments
     updated_points = [{"x": point[0], "y": point[1], "cluster": int(assignments[i])} for i, point in enumerate(X)]
     
+                
     return jsonify({"points": updated_points,"current_step": current_step})
 
 if __name__ == '__main__':

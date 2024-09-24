@@ -1,6 +1,19 @@
 var should_converge = false
 
+// Disable mutually exclusive buttons
+function disableConverge() {
+    document.getElementById('runToConvergeBtn').disabled = true;
+}
 
+function disableStep(){
+    document.getElementById('stepKMeansBtn').disabled = true
+}
+
+// Enable both buttons
+function enableButtons() {
+    document.getElementById('stepKMeansBtn').disabled = false;
+    document.getElementById('runToConvergeBtn').disabled = false;
+}
 
 
 
@@ -26,18 +39,19 @@ async function generateData() {
         xaxis: { title: 'X-axis' },
         yaxis: { title: 'Y-axis' }
     };
-
+    enableButtons()
     Plotly.newPlot('graphDiv', [trace], layout);
 }
 
 async function Converge(){
     should_converge = true
     stepKMeans()
-    should_converge = false
+    disableStep()
+    disableConverge()
 }
 // Function to call Flask API and step through K-Means
 async function stepKMeans() {
-    console.log('hey')
+
     // Get the number of clusters and initialization method from user input
     const numClusters = document.getElementById('textInput').value;
     const initMethod = document.getElementById('dropdownMenu').value;
@@ -72,13 +86,23 @@ async function stepKMeans() {
             color: cluster_colors  // Color points based on cluster assignments
         }
     };
+    let layout;  // Declare the layout variable
 
-    const layout = {
-        title: 'K-Means Step ' + data.current_step,
-        xaxis: { title: 'X-axis' },
-        yaxis: { title: 'Y-axis' }
-    };
-    
+    if (should_converge) {
+        layout = {
+            title: 'Converged K-Means',
+            xaxis: { title: 'X-axis' },
+            yaxis: { title: 'Y-axis' }
+        };
+    } else {
+        layout = {
+            title: 'K-Means Step ' + data.current_step,
+            xaxis: { title: 'X-axis' },
+            yaxis: { title: 'Y-axis' }
+        };
+    }
+    should_converge = false
+    disableConverge()
     Plotly.newPlot('graphDiv', [trace], layout);
 }
 
@@ -110,6 +134,6 @@ async function resetAlgorithm() {
         xaxis: { title: 'X-axis' },
         yaxis: { title: 'Y-axis' }
     };
-
+    enableButtons()
     Plotly.newPlot('graphDiv', [trace], layout);
 }
