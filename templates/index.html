@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kmeans visualization</title>
+    <!-- Link to CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Load Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <!-- Link to JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <div class="title-section">
+        <h1>Clustering Visualization</h1>
+    </div>
+    <div class="container">
+        
+        <div class = "half-screen">
+            <div class="top-section">
+                
+                <div class="input-section">
+                    <label for="textInput">Number of Clusters:</label>
+                    <input type="text" id="textInput" placeholder="Choose your K value..." />
+                </div>
+
+
+                <div class="input-section">
+                    <label for="dropdownMenu">Initialization Method:</label>
+                    <select id="dropdownMenu">
+                        <option value="random">Random</option>
+                        <option value="FarthestFirst">Farthest First</option>
+                        <option value="KMeans++">KMeans++</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="bottom-section">
+                <button id="stepKMeansBtn" onclick="stepKMeans()">Step Through K means</button>
+                <button id="runToConvergeBtn" onclick="Converge()">Run to Convergence</button>
+                <button id="generateNewBtn" onclick="generateData()">Generate New Dataset</button>
+                <button id="resetBtn" onclick="resetAlgorithm()">Reset Algorithm</button>
+            </div>
+        </div>
+        
+
+        <div class="half-screen">
+            <div id="graphDiv"></div>
+        </div>
+    
+
+        
+    </div>
+
+
+</body>
+</html>
