@@ -1,0 +1,51 @@
+
+Based on the new instructions, here's how you can modify the GitHub Actions workflow to:
+
+Run make install to ensure dependencies are installed.
+Run make run and sleep for a few seconds to allow the server to start.
+Ensure the project builds and runs as the graders will test it.
+Here’s the updated .github/workflows/python-app.yml file that incorporates these instructions:
+
+Updated GitHub Workflow (python-app.yml):
+yaml
+Copy code
+# This workflow will install Python dependencies, run make install, and make run.
+# It will simulate how the graders will test your project.
+
+name: Python application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    # Step to install project dependencies
+    - name: Install dependencies using Makefile
+      run: |
+        make install
+
+    # Step to run the Flask server and sleep for 5 seconds to allow server to start
+    - name: Run the Flask app and wait for server startup
+      run: |
+        make run &
+        sleep 5  # Ensure the server has time to start up
+
+    # Optionally, add more steps here for testing, linting, etc.
+    # For example, you can include linting or testing using flake8 or pytest as needed.
