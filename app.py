@@ -25,10 +25,10 @@ def euclidean_distance(point1, point2):
     return np.sqrt(np.sum((np.array(point1) - np.array(point2)) ** 2))
 
 
-def initialize_centroids(X, k, method):
+def initialize_centroids(X, k, method,manual_centroids):
     if method == "random":
         return X[random.sample(range(len(X)), k)]
-    elif method == "k-means++":
+    elif method == "KMeans++":
         # Implement K-Means++ initialization
         centroids = [X[random.randint(0, len(X)-1)]]
         for _ in range(1, k):
@@ -37,6 +37,22 @@ def initialize_centroids(X, k, method):
             next_centroid = X[np.random.choice(len(X), p=probabilities)]
             centroids.append(next_centroid)
         return centroids
+    
+    elif method == "FarthestFirst":
+        # Farthest First initialization
+        centroids = [X[random.randint(0, len(X) - 1)]]  # Randomly pick the first centroid
+        for _ in range(1, k):
+            # Calculate the distance from each point to the nearest selected centroid
+            distances = np.max([np.linalg.norm(X - np.array(c), axis=1) for c in centroids], axis=0)
+            
+            # Select the point that is farthest from any of the chosen centroids
+            farthest_point_idx = np.argmax(distances)
+            centroids.append(X[farthest_point_idx])
+        return centroids
+    elif method == "Manual":
+        if manual_centroids is None:
+            raise ValueError("Manual centroids must be provided.")
+        return np.array([[centroid['x'], centroid['y']] for centroid in manual_centroids])
     else:
         raise ValueError(f"Unknown initialization method: {method}")
     
@@ -109,11 +125,11 @@ def step_kmeans():
     num_clusters = data['num_clusters']
     init_method = data['init_method']
     should_converge = data["should_converge"]
-
-
+    manual_centroids = data.get('centroids')
 
     if should_converge:
-        centroids = initialize_centroids(X, num_clusters, init_method)
+        # Converge the algorithm fully
+        centroids = initialize_centroids(X, num_clusters, init_method,manual_centroids)
         max_iterations = 100  # A limit to prevent infinite loops
         for iteration in range(max_iterations):
             # Assign clusters
@@ -129,30 +145,44 @@ def step_kmeans():
 
             # Update centroids for next iteration
             centroids = new_centroids
+
     else:
-        
-        # Initialize K-Means only on the first step
+        # Step through the algorithm one step at a time
         if current_step == 0:
-            centroids = initialize_centroids(X, num_clusters, init_method)
+
+            # On the first step, initialize centroids
+            centroids = initialize_centroids(X, num_clusters, init_method,manual_centroids)
             assignments = assign_clusters(X, centroids)
-
-            # Initialize KMeans with a maximum of 1 iteration to step through
-
         else:
-            old_centroids = copy.deepcopy(centroids)
-            centroids = update_centroids(X, assignments, num_clusters)
-            assignments = assign_clusters(X, centroids)
-            if has_converged(old_centroids,new_centroids):
-                current_step -=1
-                
+            # Step through the algorithm: update centroids and assign clusters
+            old_centroids = copy.deepcopy(centroids)  # Copy old centroids
+            new_centroids = update_centroids(X, assignments, num_clusters)
+            assignments = assign_clusters(X, new_centroids)
+
+            # Check if the centroids have converged
+            if has_converged(old_centroids, new_centroids):
+                print(f"Converged after {current_step} steps.")
+                # If converged, don't increment the step count
+                return jsonify({
+                    "points": [{"x": point[0], "y": point[1], "cluster": int(assignments[i])} for i, point in enumerate(X)],
+                    "current_step": current_step,
+                    "converged": True
+                })
+            
+            # Update centroids for next iteration
+            centroids = new_centroids
 
         # Increment the step count
         current_step += 1
+
     # Update points with cluster assignments
     updated_points = [{"x": point[0], "y": point[1], "cluster": int(assignments[i])} for i, point in enumerate(X)]
-    
-                
-    return jsonify({"points": updated_points,"current_step": current_step})
+
+    return jsonify({
+        "points": updated_points,
+        "current_step": current_step,
+        "converged": False  # Not converged if reaching this point
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,4 +1,73 @@
 var should_converge = false
+let selectedCentroids = [];  // Array to store manually selected centroids
+let selectedCentroidTraces = [];  // To track traces added for "X" markers
+
+// Function to handle point click events in Plotly and show an "X" at the selected point
+function setupPointSelection() {
+    let plotElement = document.getElementById('graphDiv');
+    let numClusters = document.getElementById('textInput').value;
+
+    console.log("numClusters:", numClusters);
+
+    plotElement.on('plotly_click', function(data) {
+        let x = data.points[0].x;
+        let y = data.points[0].y;
+
+        // Store the selected point as a potential centroid
+        if (selectedCentroids.length >= numClusters) {
+            alert("You've selected enough points for manual initialization.");
+        } else {
+            selectedCentroids.push({ x: x, y: y });
+            console.log('Selected point:', x, y);
+
+            // Add an "X" at the selected point
+            let traceIndex = selectedCentroids.length - 1;  // Keep track of the trace index
+            selectedCentroidTraces.push(traceIndex);  // Add to trace index array
+
+            Plotly.addTraces('graphDiv', {
+                x: [x],
+                y: [y],
+                mode: 'markers',
+                marker: {
+                    size: 15,
+                    symbol: 'x',
+                    color: 'red',  // Color for the X markers
+                },
+                name: 'Selected Centroid'
+            });
+        }
+    });
+}
+
+
+function clearSelectedCentroids() {
+    // Clear the selected centroids array
+    selectedCentroids = [];
+
+    // Remove the "X" markers by deleting their traces
+    if (selectedCentroidTraces.length > 0) {
+        // Delete the traces in reverse order (from the last trace added to the first)
+        for (let i = selectedCentroidTraces.length - 1; i >= 0; i--) {
+            Plotly.deleteTraces('graphDiv', selectedCentroidTraces[i]);
+        }
+
+        // Clear the selectedCentroidTraces array after deletion
+        selectedCentroidTraces = [];
+    }
+
+    console.log('Selected centroids and X markers cleared.');
+}
+
+// Call this function after rendering the Plotly graph to enable manual point selection
+
+
+
+
+
+
+
+
+
 
 // Disable mutually exclusive buttons
 function disableConverge() {
@@ -41,6 +110,8 @@ async function generateData() {
     };
     enableButtons()
     Plotly.newPlot('graphDiv', [trace], layout);
+    setupPointSelection();
+    clearSelectedCentroids();
 }
 
 async function Converge(){
@@ -65,7 +136,8 @@ async function stepKMeans() {
         body: JSON.stringify({
             num_clusters: parseInt(numClusters), 
             init_method: initMethod,
-            should_converge: should_converge
+            should_converge: should_converge,
+            centroids:selectedCentroids
         })
     });
 
@@ -88,7 +160,7 @@ async function stepKMeans() {
     };
     let layout;  // Declare the layout variable
 
-    if (should_converge) {
+    if (should_converge )  {
         layout = {
             title: 'Converged K-Means',
             xaxis: { title: 'X-axis' },
@@ -104,6 +176,7 @@ async function stepKMeans() {
     should_converge = false
     disableConverge()
     Plotly.newPlot('graphDiv', [trace], layout);
+    setupPointSelection();
 }
 
 
@@ -136,4 +209,6 @@ async function resetAlgorithm() {
     };
     enableButtons()
     Plotly.newPlot('graphDiv', [trace], layout);
+    setupPointSelection();
+    clearSelectedCentroids();
 }
