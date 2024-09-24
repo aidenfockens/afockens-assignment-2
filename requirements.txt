@@ -87,7 +87,7 @@ pydantic_core==2.23.3
 Pygments==2.18.0
 PyQt5==5.12
 PyQt5-Qt5==5.15.2
-PyQt5_sip==4.19.19
+PyQt5_sip==12.15.0
 PyQtWebEngine==5.12
 pytest==8.3.3
 python-dateutil==2.9.0.post0
