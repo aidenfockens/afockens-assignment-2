@@ -10,7 +10,7 @@ PORT=3000
 .PHONY: install
 install: venv
 	@echo "Installing dependencies..."
-	. $(VENV)/bin/activate && pip install -r requirements.txt
+	$(VENV)/bin/pip install -r requirements.txt
 
 # Create virtual environment
 .PHONY: venv
@@ -22,7 +22,10 @@ venv:
 .PHONY: run
 run: venv install
 	@echo "Starting Flask app on http://localhost:$(PORT)..."
-	. $(VENV)/bin/activate && FLASK_APP=$(APP_NAME) FLASK_ENV=development flask run --port=$(PORT)
+	. $(VENV)/bin/activate && \
+		export FLASK_APP=$(APP_NAME) && \
+		export FLASK_ENV=development && \
+		flask run --port=$(PORT)
 
 # Clean up virtual environment and dependencies
 .PHONY: clean
@@ -35,6 +38,6 @@ clean:
 help:
 	@echo "Usage:"
 	@echo "  make install  - Install dependencies"
-	@echo "  make run      - Run the Flask app on http://localhost:3000"
+	@echo "  make run      - Run the Flask app on http://localhost:$(PORT)"
 	@echo "  make venv     - Create a virtual environment"
 	@echo "  make clean    - Clean up virtual environment"

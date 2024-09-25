@@ -88,7 +88,7 @@ function enableButtons() {
 
 
 async function generateData() {
-    const response = await fetch('http://127.0.0.1:5000/api/generate-data');
+    const response = await fetch('http://127.0.0.1:3000/api/generate-data');
     const data = await response.json();
     
     // Prepare data for Plotly.js
@@ -128,7 +128,7 @@ async function stepKMeans() {
     const initMethod = document.getElementById('dropdownMenu').value;
 
     // Send data to Flask via POST
-    const response = await fetch('http://127.0.0.1:5000/api/step-kmeans', {
+    const response = await fetch('http://127.0.0.1:3000/api/step-kmeans', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ async function stepKMeans() {
 
 
 async function resetAlgorithm() {
-    const response = await fetch('http://127.0.0.1:5000/api/reset-algorithm', {
+    const response = await fetch('http://127.0.0.1:3000/api/reset-algorithm', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
